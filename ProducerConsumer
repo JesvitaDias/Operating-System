@@ -1,0 +1,55 @@
+#include <stdio.h>
+
+#define BUFFER_SIZE 10
+
+int buffer[BUFFER_SIZE]; int in = 0, out = 0; int empty = BUFFER_SIZE; int full = 0; int mutex = 1;
+
+void wait(int *s) { while (*s <= 0); (*s)--; }
+
+void signal(int *s) { (*s)++; }
+
+void producer() { int item; item = rand() % 100; // Produce an item wait(&empty); wait(&mutex);
+
+buffer[in] = item;
+printf("Produced: %d\n", item);
+in = (in + 1) % BUFFER_SIZE;
+
+signal(&mutex);
+signal(&full);
+
+}
+
+void consumer() { int item; wait(&full); wait(&mutex);
+
+item = buffer[out];
+printf("Consumed: %d\n", item);
+out = (out + 1) % BUFFER_SIZE;
+
+signal(&mutex);
+signal(&empty);
+
+}
+
+int main() { int choice; while (1) { printf("\nMenu:\n"); printf("1. Produce\n"); printf("2. Consume\n"); printf("3. Execute Producer and Consumer\n"); printf("4. Exit\n"); printf("Enter your choice: "); scanf("%d", &choice);
+
+switch (choice) {
+        case 1:
+            producer();
+            break;
+        case 2:
+            consumer();
+            break;
+        case 3:
+            producer();
+            consumer();
+            break;
+        case 4:
+            return 0;
+        default:
+            printf("Invalid choice! Please try again.\n");
+    }
+}
+return 0;
+
+}
+
