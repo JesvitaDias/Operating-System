@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+int state[MAX];
+int N;
+
+int left(int i) {
+    return (i + N - 1) % N;
+}
+
+int right(int i) {
+    return (i + 1) % N;
+}
+
+void printStates() {
+    for (int i = 0; i < N; i++) {
+        if (state[i] == 0)
+            printf("Philosopher %d is THINKING\n", i);
+        else if (state[i] == 1)
+            printf("Philosopher %d is HUNGRY\n", i);
+        else if (state[i] == 2)
+            printf("Philosopher %d is EATING\n", i);
+    }
+}
+
+void takeForks(int i) {
+    if (state[i] == 1 && state[left(i)] != 2 && state[right(i)] != 2) {
+        state[i] = 2;
+    }
+}
+
+void putForks(int i) {
+    state[i] = 0;
+    takeForks(left(i));
+    takeForks(right(i));
+}
+
+void philosopherSimulation(int rounds) {
+    for (int r = 0; r < rounds; r++) {
+        for (int i = 0; i < N; i++) {
+            if (state[i] == 0) {
+                state[i] = 1;
+                takeForks(i);
+            } else if (state[i] == 2) {
+                putForks(i);
+            }
+        }
+        printStates();
+    }
+}
+
+int main() {
+    printf("Enter number of philosophers: ");
+    scanf("%d", &N);
+
+    if (N < 2 || N > MAX) {
+        printf("Please enter a number between 2 and %d\n", MAX);
+        return 1;
+    }
+
+    for (int i = 0; i < N; i++)
+        state[i] = 0;
+
+    int rounds;
+    printf("Enter number of simulation rounds: ");
+    scanf("%d", &rounds);
+
+    philosopherSimulation(rounds);
+
+    return 0;
+}
