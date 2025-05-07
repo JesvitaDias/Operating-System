@@ -1,9 +1,13 @@
 #include<stdio.h>
 void main()
 {
-    int bt[20],tat[20],wt[20],i,n,j,temp;
+    int bt[20],pid[20],tat[20],wt[20],i,n,j,temp;
     printf("Enter the number of processes ");
     scanf("%d",&n);
+    for(i=0;i<n;i++)
+    {
+        pid[i]=i+1;
+    }
     printf("Enter the burst times of processes ");
     for(i=0;i<n;i++)
     {
@@ -19,6 +23,10 @@ void main()
                 temp=bt[i];
                 bt[i]=bt[j];
                 bt[j]=temp;
+                 temp=pid[i];
+                pid[i]=pid[j];
+                pid[j]=temp;
+
             }
         }
     }
@@ -34,7 +42,7 @@ void main()
     printf("\nPROCESS  BURSTTIME WAITINGTIME TURNAROUNDTIME");
     for(i=0;i<n;i++)
     {
-       printf("\n%d         %d           %d              %d",(i+1),bt[i],wt[i],tat[i]);
+       printf("\n%d         %d           %d              %d",pid[i],bt[i],wt[i],tat[i]);
     }
     wtavg=(float)(wtavg/n);
     tatavg=(float)(tatavg/n);
