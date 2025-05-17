@@ -1,0 +1,87 @@
+#include <stdio.h>
+#define MAX 20
+
+void main() {
+    int at[MAX], bt[MAX], rem_bt[MAX];
+    int ct[MAX], wt[MAX], tat[MAX];
+    int completed_flag[MAX] = {0};
+    int pid[MAX];
+    int n, i, time = 0;
+    int completed = 0, idx;
+    int mintime;
+    float wtavg = 0, tatavg = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    // Initialize PIDs and remaining times
+    for (i = 0; i < n; i++) {
+        pid[i]     = i + 1;
+        rem_bt[i]  = 0;
+    }
+
+    printf("Enter arrival times:\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &at[i]);
+    }
+
+    printf("Enter burst times:\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &bt[i]);
+        rem_bt[i] = bt[i];
+    }
+
+    // Main SRTF loop
+    while (completed < n) {
+        mintime = 9999;
+        idx     = -1;
+
+        // Find process with shortest remaining time that's arrived and not completed
+        for (i = 0; i < n; i++) {
+            if (at[i] <= time && !completed_flag[i]) {
+                if (rem_bt[i] < mintime) {
+                    mintime = rem_bt[i];
+                    idx     = i;
+                }
+            }
+        }
+
+        if (idx == -1) {
+            // No process ready → idle CPU
+            time++;
+        } else {
+            // Execute for 1 time unit
+            rem_bt[idx]--;
+            time++;
+
+            // If process finishes
+            if (rem_bt[idx] == 0) {
+                completed_flag[idx] = 1;
+                completed++;
+
+                ct[idx]  = time;
+                tat[idx] = ct[idx] - at[idx];
+                wt[idx]  = tat[idx] - bt[idx];
+
+                tatavg += tat[idx];
+                wtavg  += wt[idx];
+            }
+        }
+    }
+
+    // Calculate averages
+    wtavg  /= n;
+    tatavg /= n;
+
+    // Print results
+    printf("\nPROCESS  ARRIVAL  BURST  COMPLETION  WAITING  TURNAROUND\n");
+    for (i = 0; i < n; i++) {
+        printf("P%-3d     %-7d %-6d %-10d %-8d %-10d\n",
+               pid[i], at[i], bt[i], ct[i], wt[i], tat[i]);
+    }
+
+    printf("\nAverage Waiting Time    : %.2f\n", wtavg);
+    printf("Average Turnaround Time : %.2f\n", tatavg);
+}
