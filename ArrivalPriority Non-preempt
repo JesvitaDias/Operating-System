@@ -1,0 +1,82 @@
+#include <stdio.h>
+
+void main() {
+    int bt[20], at[20], p[20], ct[20], wt[20], tat[20];
+    int pid[20], completed[20];
+    int n, i, j, cur_time = 0, completed_count = 0, idx;
+    float wtavg = 0, tatavg = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    for (i = 0; i < n; i++) {
+        pid[i] = i + 1;
+        completed[i] = 0;
+    }
+
+    printf("Enter arrival times:\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &at[i]);
+    }
+
+    printf("Enter burst times:\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &bt[i]);
+    }
+
+    printf("Enter priorities (lower number = higher priority):\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &p[i]);
+    }
+
+    // Start scheduling
+    // Continue until all processes are completed
+    while (completed_count < n) {
+        // Find highest priority process among those that have arrived and not completed
+        idx = -1;
+        for (i = 0; i < n; i++) {
+            if (!completed[i] && at[i] <= cur_time) {
+                if (idx == -1 || p[i] < p[idx]) {
+                    idx = i;
+                }
+                // If same priority, tie-break by earlier arrival
+                else if (p[i] == p[idx] && at[i] < at[idx]) {
+                    idx = i;
+                }
+            }
+        }
+
+        // If no process is ready, advance time
+        if (idx == -1) {
+            cur_time++;
+        } else {
+            // Schedule process idx
+            ct[idx] = cur_time + bt[idx];
+            tat[idx] = ct[idx] - at[idx];
+            wt[idx]  = tat[idx] - bt[idx];
+            wtavg   += wt[idx];
+            tatavg  += tat[idx];
+
+            cur_time = ct[idx];
+            completed[idx] = 1;
+            completed_count++;
+        }
+    }
+
+    // Calculate averages
+    wtavg  /= n;
+    tatavg /= n;
+
+    // Print table
+    printf("\nProcess  Arrival  Burst  Priority  Completion  Waiting  Turnaround\n");
+    for (i = 0; i < n; i++) {
+        printf(" P%-3d   %-7d %-6d %-9d %-10d %-8d %-10d\n",
+               pid[i], at[i], bt[i], p[i], ct[i], wt[i], tat[i]);
+    }
+
+    printf("\nAverage Waiting Time    : %.2f\n", wtavg);
+    printf("Average Turnaround Time : %.2f\n", tatavg);
+}
