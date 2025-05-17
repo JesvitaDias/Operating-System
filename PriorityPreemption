@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <limits.h>
+
+void main() {
+    int bt[20], rem_bt[20], at[20], p[20];
+    int ct[20], wt[20], tat[20], pid[20];
+    int n, completed = 0, cur_time = 0, min_priority, idx;
+    float wtavg = 0, tatavg = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        pid[i]      = i + 1;
+        rem_bt[i]   = 0;
+    }
+
+    printf("Enter arrival times:\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &at[i]);
+    }
+
+    printf("Enter burst times:\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &bt[i]);
+        rem_bt[i] = bt[i];            // remaining time
+    }
+
+    printf("Enter priorities (lower number = higher priority):\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d: ", i + 1);
+        scanf("%d", &p[i]);
+    }
+
+    // Run until all processes are completed
+    while (completed < n) {
+        // Find the process with highest priority at this time
+        min_priority = INT_MAX;
+        idx = -1;
+        for (int i = 0; i < n; i++) {
+            if (at[i] <= cur_time && rem_bt[i] > 0) {
+                if (p[i] < min_priority) {
+                    min_priority = p[i];
+                    idx = i;
+                }
+                // tie-break: if same priority, shorter remaining time
+                else if (p[i] == min_priority && rem_bt[i] < rem_bt[idx]) {
+                    idx = i;
+                }
+            }
+        }
+
+        if (idx == -1) {
+            // No ready process → advance time
+            cur_time++;
+        } else {
+            // “Execute” process idx for 1 time unit
+            rem_bt[idx]--;
+            cur_time++;
+
+            // If process finished, record times
+            if (rem_bt[idx] == 0) {
+                completed++;
+                ct[idx]    = cur_time;
+                tat[idx]   = ct[idx] - at[idx];
+                wt[idx]    = tat[idx] - bt[idx];
+                wtavg     += wt[idx];
+                tatavg    += tat[idx];
+            }
+        }
+    }
+
+    // Compute averages
+    wtavg  /= n;
+    tatavg /= n;
+
+    // Print table
+    printf("\nProcess  Arrival  Burst  Priority  Completion  Waiting  Turnaround\n");
+    for (int i = 0; i < n; i++) {
+        printf(" P%-3d    %-7d %-6d %-9d %-10d %-8d %-10d\n",
+               pid[i], at[i], bt[i], p[i], ct[i], wt[i], tat[i]);
+    }
+
+    printf("\nAverage Waiting Time    : %.2f\n", wtavg);
+    printf("Average Turnaround Time : %.2f\n", tatavg);
+}
